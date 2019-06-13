@@ -172,6 +172,26 @@ anual *cadastra_dados_anual(anual *p) {
   }
 }
 
+float FLC() {
+	float temp1, temp2;
+
+	temp1 = lucro_tributario();
+	temp2 = IR_CSLL();
+
+	return (temp1 - temp2);
+}
+
+float VPL(float tempo_producao) {
+	float temp, temp1, temp2, p, taxa_desconto = 0.14;
+
+	temp = FLC();
+	temp1 = 1 - taxa_desconto;
+	temp2 = tempo_producao;
+	p = pow(temp1, temp2);
+
+	return (temp / p);
+}
+
 void imprime_lista_mensal(mensal *p) {
 	system("clear");
 
@@ -181,15 +201,16 @@ void imprime_lista_mensal(mensal *p) {
 		printf("\t Nome da Empresa: %s\n", temp->nome_empresa);
 		printf("\t Nome do Campo..: %s\n", temp->nome_campo);
 		printf("\t Data : %s\n", temp->data);
-		printf("\t Quantidade de Poco Produtor: %f\n", temp->poco_produtor);
-		printf("\t Quantidade de Poco Injetor: %f\n", temp->poco_injetor);
-		printf("\t Quantidade de Poco Explorador: %f\n", temp->poco_explorador);
-		printf("\t Quantidade de Poco Abandonado: %f\n", temp->poco_abandonado);
-		printf("\t Preco de Venda do Oleo (em dolar): %f\n", temp->venda_oleo);
-		printf("\t Preco de Venda do Gas (em dolar): %f\n", temp->venda_gas);
-		printf("\t Tempo de Producao dos Pocos (em dias): %f\n", temp->tempo_producao);
-		printf("\t Producao Total do Oleo (em bbl): %f\n", temp->producao_oleo);
-		printf("\t Producao Total do Gas (em bbl): %f\n", temp->producao_gas);
+		printf("\t Quantidade de Poco Produtor: %.2f\n", temp->poco_produtor);
+		printf("\t Quantidade de Poco Injetor: %.2f\n", temp->poco_injetor);
+		printf("\t Quantidade de Poco Explorador: %.2f\n", temp->poco_explorador);
+		printf("\t Quantidade de Poco Abandonado: %.2f\n", temp->poco_abandonado);
+		printf("\t Preco de Venda do Oleo (em dolar): %.2f\n", temp->venda_oleo);
+		printf("\t Preco de Venda do Gas (em dolar): %.2f\n", temp->venda_gas);
+		printf("\t Tempo de Producao dos Pocos (em dias): %.2f\n", temp->tempo_producao);
+		printf("\t Producao Total do Oleo (em bbl): %.2f\n", temp->producao_oleo);
+		printf("\t Producao Total do Gas (em bbl): %.2f\n", temp->producao_gas);
+		printf("\t VPL: %.2f\n", VPL(temp->tempo_producao));
 
 		temp = temp->prox;
 	}
@@ -207,15 +228,16 @@ void imprime_lista_anual(anual *p) {
 		printf("\t Nome da Empresa: %s\n", temp->nome_empresa);
 		printf("\t Nome do Campo..: %s\n", temp->nome_campo);
 		printf("\t Data : %s\n", temp->data);
-		printf("\t Quantidade de Poco Produtor: %f\n", temp->poco_produtor);
-		printf("\t Quantidade de Poco Injetor: %f\n", temp->poco_injetor);
-		printf("\t Quantidade de Poco Explorador: %f\n", temp->poco_explorador);
-		printf("\t Quantidade de Poco Abandonado: %f\n", temp->poco_abandonado);
-		printf("\t Preco de Venda do Oleo (em dolar): %f\n", temp->venda_oleo);
-		printf("\t Preco de Venda do Gas (em dolar): %f\n", temp->venda_gas);
-		printf("\t Tempo de Producao dos Pocos (em dias): %f\n", temp->tempo_producao);
-		printf("\t Producao Total do Oleo (em bbl): %f\n", temp->producao_oleo);
-		printf("\t Producao Total do Gas (em bbl): %f\n", temp->producao_gas);
+		printf("\t Quantidade de Poco Produtor: %.2f\n", temp->poco_produtor);
+		printf("\t Quantidade de Poco Injetor: %.2f\n", temp->poco_injetor);
+		printf("\t Quantidade de Poco Explorador: %.2f\n", temp->poco_explorador);
+		printf("\t Quantidade de Poco Abandonado: %.2f\n", temp->poco_abandonado);
+		printf("\t Preco de Venda do Oleo (em dolar): %.2f\n", temp->venda_oleo);
+		printf("\t Preco de Venda do Gas (em dolar): %.2f\n", temp->venda_gas);
+		printf("\t Tempo de Producao dos Pocos (em dias): %.2f\n", temp->tempo_producao);
+		printf("\t Producao Total do Oleo (em bbl): %.2f\n", temp->producao_oleo);
+		printf("\t Producao Total do Gas (em bbl): %.2f\n", temp->producao_gas);
+		printf("\t VPL: %.2f\n", VPL(temp->tempo_producao));
 
 		temp = temp->prox;
 	}
@@ -223,3 +245,4 @@ void imprime_lista_anual(anual *p) {
 	// No windows usar system("pause");
 	system( "read -n 1 -s -p \"Pressione qualquer tecla para continuar...\"" );
 }
+

@@ -24,7 +24,7 @@ int main() {
 			imprime_lista_mensal(lista_mensal);
 			break;
 		case 4:
-			printf("Imprime...");
+			imprime_lista_anual(lista_anual);
 			break;
 		case 5:
 			exit(0);
