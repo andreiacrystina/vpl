@@ -7,8 +7,8 @@
 int main() {
 	int escolha;
 
-	mensal *lista_mensal = NULL;
-	anual *lista_anual = NULL;
+	reservatorio *lista_mensal = NULL;
+	reservatorio *lista_anual = NULL;
 
 	for (;;) {
 		escolha = menu();
@@ -18,18 +18,16 @@ int main() {
 			lista_mensal = cadastra_dados_mensal(lista_mensal);
 			break;
 		case 2:
-			lista_anual = cadastra_dados_anual(lista_anual);
-			break;
-		case 3:
 			imprime_lista_mensal(lista_mensal);
 			break;
-		case 4:
+		case 3:
 			imprime_lista_anual(lista_anual);
 			break;
-		case 5:
+		case 4:
 			exit(0);
 			break;
 		}
 	}
+
 	return 0;
 }
