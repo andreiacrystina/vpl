@@ -249,11 +249,11 @@ void imprime_lista_mensal(reservatorio *p) {
 		printf("\t Quantidade de Poco Abandonado: %.2f\n", temp->poco_abandonado);
 		printf("\t Preco de Venda do Oleo (em dolar): %.2f\n", temp->venda_oleo);
 		printf("\t Preco de Venda do Gas (em dolar): %.2f\n", temp->venda_gas);
-		printf("\t Tempo de Producao dos Pocos (em dias): %.2f\n", temp->tempo_producao);
+		printf("\t Tempo de Producao dos Pocos (até 31 dias): %.2f\n", temp->tempo_producao);
 		printf("\t Producao Total do Oleo (em bbl): %.2f\n", temp->producao_oleo);
 		printf("\t Producao Total do Gas (em bbl): %.2f\n", temp->producao_gas);
 		printf("\t VPL: %.2f\n", temp->VPL);
-
+		printf("------------------------------------------------\n");
 		temp = temp->prox;
 	}
 
