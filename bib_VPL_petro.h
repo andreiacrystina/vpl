@@ -73,8 +73,8 @@ void gravar(registro * ini){
 	registro *p;
 	for (p = ini->prox; p != NULL; p = p->prox){
 		fwrite(&p->conteudo, sizeof(reservatorio), 1, file);
-		printf("Gravado %s \n", p->conteudo.mes);
 	}
+
 	printf("Gravado!!\n");
 	fclose(file);
 	printf("\n");
@@ -272,6 +272,7 @@ reservatorio *cadastra_dados_mensal(registro *ini) {
 	// Realiza o calculo do valor presente liquido do projeto.
 	calculo_vpl = VPL(temp);
 	temp.VPL = calculo_vpl;
+	printf("\t VPL: %.2f\n", temp.VPL);
 
 	insere(temp, ini);
 	MAX++;
@@ -299,7 +300,6 @@ void imprime_lista_mensal(registro *ini){
 		printf("\t Producao Total do Gas (em bbl): %.2f\n", p->conteudo.producao_gas);
 		printf("\t VPL: %.2f\n", p->conteudo.VPL);
 		printf("------------------------------------------------\n");
-		system( "read -n 1 -s -p \"Pressione qualquer tecla para continuar...\"" );
 	}
 
 	// No windows usar system("pause");

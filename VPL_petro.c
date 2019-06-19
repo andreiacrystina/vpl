@@ -15,20 +15,12 @@ int main() {
 	FILE *file;
 	if((file = fopen("controle.bin", "rb")) != NULL){
 		fread(&MAX, sizeof(int), 1, file);
-	}else{
-		printf("Sem informacao de controle (MAX)!\n ");
-		system ( "read -n 1 -s -p \"Pressione qualquer tecla para continuar...\"" );
-		exit(1);
 	}
 	fclose(file);
 
 	// Leitura do arquivo de dados dos reservatórios.
 	file = fopen("VPL.bin", "rb");
-	if (!file){
-		printf("Dados inexistentes!\n");
-		system ( "read -n 1 -s -p \"Pressione qualquer tecla para continuar...\"" );
-		exit(1);
-	}else{
+	if (file){
 		int i;
 		reservatorio lista_mensal;
 		for(i=0; i<MAX; i++){
@@ -37,6 +29,8 @@ int main() {
 		}
 	}
 	fclose(file);
+
+	printf("MAX: %d", MAX);
 
 	for (;;) {
 		escolha = menu();
@@ -52,8 +46,8 @@ int main() {
 			// imprime_lista_anual(lista_anual);
 			break;
 		case 4:
-			gravar(ini);
 			gravar_controle();
+			gravar(ini);
 			exit(0);
 			break;
 		}
