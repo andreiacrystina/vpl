@@ -13,9 +13,14 @@ typedef struct {
   float producao_oleo;
   float producao_gas;
 	float VPL;
-	struct reservatorio *prox;
 } reservatorio;
 
+typedef struct reg {
+	reservatorio conteudo;
+	struct reg *prox;
+} registro;
+
+registro *busca(char *nome, registro * ini);
 
 int menu(void)
 {
@@ -33,6 +38,59 @@ int menu(void)
 	} while (c <= 0 || c > 4);
 	getchar();
 	return c;
+}
+
+registro *cria(void)
+{
+	registro *start;
+
+	start = (registro *) malloc(sizeof(registro));
+	start->prox = NULL;
+	return start;
+}
+
+void insere(reservatorio x, registro *p)
+{
+	registro *nova;
+
+	nova = (registro *) malloc(sizeof(registro));
+	nova->conteudo = x;
+	nova->prox = p->prox;
+	p->prox = nova;
+}
+
+void gravar(registro * ini){
+	system("clear");
+
+	FILE *file;
+	file = fopen("VPL.bin", "wb");
+	if (!file){
+		printf("Nao conseguiu criar o arquivo");
+		system ( "read -n 1 -s -p \"Pressione qualquer tecla para continuar...\"" );
+		return;
+	}
+
+	registro *p;
+	for (p = ini->prox; p != NULL; p = p->prox){
+		fwrite(&p->conteudo, sizeof(reservatorio), 1, file);
+		printf("Gravado %s \n", p->conteudo.mes);
+	}
+	printf("Gravado!!\n");
+	fclose(file);
+	printf("\n");
+	system ( "read -n 1 -s -p \"Pressione qualquer tecla para continuar...\"" );
+}
+
+void gravar_controle(void) {
+	FILE *file;
+	file = fopen("controle.bin", "wb");
+	if (!file){
+		printf("Nao conseguiu criar arquivo de controle");
+		system ( "read -n 1 -s -p \"Pressione qualquer tecla para continuar...\"" );
+		return;
+	}
+	fwrite(&MAX, sizeof(int), 1, file);
+	fclose(file);
 }
 
 void ler_string(char palavra[100], int tamanho) {
@@ -55,28 +113,28 @@ void ler_string(char palavra[100], int tamanho) {
 	}
 }
 
-float receita_bruta(reservatorio *pr) {
+float receita_bruta(reservatorio pr) {
   float preco_oleo, preco_gas, custo_producao_oleo, custo_producao_gas, resultado;
   //fator de qualidade do oleo e gas
   float fbo = 1.95;
   float fbg = 0.0468;
 
-  preco_oleo = pr->venda_oleo * fbo;
-  preco_gas = pr->venda_gas * fbg;
+  preco_oleo = pr.venda_oleo * fbo;
+  preco_gas = pr.venda_gas * fbg;
 
   //calculo dos custos operacionais em milhoes de dolares
-  custo_producao_oleo = ((7.08 * pr->producao_oleo) / 1000000);
-  custo_producao_gas = ((0.0072 * pr->producao_oleo) / 1000000);
+  custo_producao_oleo = ((7.08 * pr.producao_oleo) / 1000000);
+  custo_producao_gas = ((0.0072 * pr.producao_oleo) / 1000000);
 
   resultado = (((preco_oleo * custo_producao_oleo) + (preco_gas * custo_producao_gas)) / 1000000);
 
 	return (resultado);
 }
 
-float participacao_especial(reservatorio *pr) {
+float participacao_especial(reservatorio pr) {
 	float temp, temp1, resultado;
 
-	temp = pr->producao_oleo;
+	temp = pr.producao_oleo;
 	temp1 = receita_bruta(pr);
 	/* a participacao especial eh aplicada na producao de oleo do reservatorio, logo quanto maior a producao do reservatorio, maior eh a participacao especial */
 
@@ -97,7 +155,7 @@ float participacao_especial(reservatorio *pr) {
 	return (resultado);
 }
 
-float pis_cofins(reservatorio *pr) {
+float pis_cofins(reservatorio pr) {
   float pis_cofins, temp;
 
 	temp = receita_bruta(pr);
@@ -107,7 +165,7 @@ float pis_cofins(reservatorio *pr) {
 	return (pis_cofins);
 }
 
-float royalties(reservatorio *pr) {
+float royalties(reservatorio pr) {
 	float royalties, temp;
 
 	temp = receita_bruta(pr);
@@ -117,20 +175,20 @@ float royalties(reservatorio *pr) {
 	return (royalties);
 }
 
-float receita_liquida(reservatorio *pr) {
+float receita_liquida(reservatorio pr) {
 	float aluguel, exploracao, perfuracao, completacao, abandono, temp1;
 
-	exploracao = (44 * pr->poco_explorador) + 97;
-	perfuracao = (14 * pr->poco_produtor) + (14 * pr->poco_injetor);
-	completacao = (13 * pr->poco_produtor) + (13 * pr->poco_injetor);
-	abandono = (2.43 * pr->poco_produtor) + (2.43 * pr->poco_injetor);
+	exploracao = (44 * pr.poco_explorador);
+	perfuracao = (14 * pr.poco_produtor) + (14 * pr.poco_injetor);
+	completacao = (13 * pr.poco_produtor) + (13 * pr.poco_injetor);
+	abandono = (2.43 * pr.poco_produtor) + (2.43 * pr.poco_injetor);
 
 	temp1 = receita_bruta(pr);
 
 	return (temp1 - exploracao - perfuracao - completacao - abandono);
 }
 
-float lucro_tributario(reservatorio *pr) {
+float lucro_tributario(reservatorio pr) {
 	float temp1, temp2, temp3, temp4;
 
 	temp1 = receita_liquida(pr);
@@ -141,7 +199,7 @@ float lucro_tributario(reservatorio *pr) {
 	return (temp1 - temp2 - temp3 - temp4);
 }
 
-float IR_CSLL(reservatorio *pr) {
+float IR_CSLL(reservatorio pr) {
 	float temp;
 	float resultado;
 
@@ -155,7 +213,7 @@ float IR_CSLL(reservatorio *pr) {
 	return resultado;
 }
 
-float FLC(reservatorio *pr) {
+float FLC(reservatorio pr) {
 	float temp1, temp2;
 
 	temp1 = lucro_tributario(pr);
@@ -164,103 +222,90 @@ float FLC(reservatorio *pr) {
 	return (temp1 - temp2);
 }
 
-float VPL(reservatorio *pr) {
+float VPL(reservatorio pr) {
 	float temp, temp1, temp2, p, taxa_desconto = 0.14;
 
 	temp = FLC(pr);
 	temp1 = 1 - taxa_desconto;
-	temp2 = pr->tempo_producao;
+	temp2 = pr.tempo_producao;
 	p = pow(temp1, temp2);
 
 	return (temp / p);
 }
 
-reservatorio *cadastra_dados_mensal(reservatorio *p) {
-	// Declaracao de ponteiros de controle.
-	reservatorio *novo = NULL, *temp = p;
-	float calculo_vpl = 0;
+reservatorio *cadastra_dados_mensal(registro *ini) {
+	system("clear");
 
-	// Aloca o espaço de memória necessário para salvar uma lista mensal de reservatorios.
-  novo = (reservatorio *) malloc(sizeof (reservatorio));
+	// Declaracao de variaveis de controle.
+	reservatorio temp;
+	float calculo_vpl = 0;
 
 	// Recebe os dados do usuário.
 	printf("Cadastro de Dados para Analise Mensal do VPL\n");
   printf("\t Informe o nome da empresa: ");
-	ler_string(novo->nome_empresa, 100);
+	ler_string(temp.nome_empresa, 100);
   printf("\t Informe o nome do campo: ");
-	ler_string(novo->nome_campo, 100);
+	ler_string(temp.nome_campo, 100);
 	printf("\t Mes (01 a 12): ");
-	scanf("%d", &novo->mes);
+	scanf("%d", &temp.mes);
 	printf("\t Ano : ");
-	scanf("%d", &novo->ano);
+	scanf("%d", &temp.ano);
 	printf("\t Quantidade de Poco Produtor: ");
-	scanf("%f", &novo->poco_produtor);
+	scanf("%f", &temp.poco_produtor);
 	printf("\t Quantidade de Poco Injetor: ");
-	scanf("%f", &novo->poco_injetor);
+	scanf("%f", &temp.poco_injetor);
 	printf("\t Quantidade de Poco Explorador: ");
-	scanf("%f", &novo->poco_explorador);
+	scanf("%f", &temp.poco_explorador);
 	printf("\t Quantidade de Poco Abandonado: ");
-	scanf("%f", &novo->poco_abandonado);
+	scanf("%f", &temp.poco_abandonado);
 	printf("\t Preco de Venda do Oleo (em dolar): ");
-	scanf("%f", &novo->venda_oleo);
+	scanf("%f", &temp.venda_oleo);
 	printf("\t Preco de Venda do Gas (em dolar): ");
-	scanf("%f", &novo->venda_gas);
+	scanf("%f", &temp.venda_gas);
 	printf("\t Tempo de Producao dos Pocos (em dias): ");
-	scanf("%f", &novo->tempo_producao);
+	scanf("%f", &temp.tempo_producao);
 	printf("\t Producao Total do Oleo (em bbl): ");
-	scanf("%f", &novo->producao_oleo);
+	scanf("%f", &temp.producao_oleo);
 	printf("\t Producao Total do Gas (em bbl): ");
-	scanf("%f", &novo->producao_gas);
+	scanf("%f", &temp.producao_gas);
 
 	// Realiza o calculo do valor presente liquido do projeto.
-	calculo_vpl = VPL(novo);
-	novo->VPL = calculo_vpl;
+	calculo_vpl = VPL(temp);
+	temp.VPL = calculo_vpl;
 
-	// Indica que o elemento que será adicionado na lista é o último elemento.
-  novo->prox = NULL;
-
-	// Verifica se a lista está vazia.
-  if (p == NULL) {
-		// Retorna os novos dados cadastrados como sendo o primeiro elemento da lista.
-    return novo;
-  } else {
-		// Percorre toda a lista em busca do último elemento (mensal->prox == NUL).
-    while (temp->prox != NULL) {
-      temp = temp->prox;
-    }
-    temp->prox = novo;
-    return p;
-  }
+	insere(temp, ini);
+	MAX++;
+	system ( "read -n 1 -s -p \"Pressione qualquer tecla para continuar...\"" );
 }
 
-void imprime_lista_mensal(reservatorio *p) {
+void imprime_lista_mensal(registro *ini){
 	system("clear");
+	registro *p;
 
-  reservatorio *temp = p;
-	while (temp != NULL) {
+	for (p = ini->prox; p != NULL; p = p->prox){
 		printf("\t Lista Mensal\n");
-		printf("\t Nome da Empresa: %s\n", temp->nome_empresa);
-		printf("\t Nome do Campo..: %s\n", temp->nome_campo);
-		printf("\t Mes : %d\n", temp->mes);
-		printf("\t Ano : %d\n", temp->ano);
-		printf("\t Quantidade de Poco Produtor: %.2f\n", temp->poco_produtor);
-		printf("\t Quantidade de Poco Injetor: %.2f\n", temp->poco_injetor);
-		printf("\t Quantidade de Poco Explorador: %.2f\n", temp->poco_explorador);
-		printf("\t Quantidade de Poco Abandonado: %.2f\n", temp->poco_abandonado);
-		printf("\t Preco de Venda do Oleo (em dolar): %.2f\n", temp->venda_oleo);
-		printf("\t Preco de Venda do Gas (em dolar): %.2f\n", temp->venda_gas);
-		printf("\t Tempo de Producao dos Pocos (até 31 dias): %.2f\n", temp->tempo_producao);
-		printf("\t Producao Total do Oleo (em bbl): %.2f\n", temp->producao_oleo);
-		printf("\t Producao Total do Gas (em bbl): %.2f\n", temp->producao_gas);
-		printf("\t VPL: %.2f\n", temp->VPL);
+		printf("\t Nome da Empresa: %s\n", p->conteudo.nome_empresa);
+		printf("\t Nome do Campo..: %s\n", p->conteudo.nome_campo);
+		printf("\t Mes : %d\n", p->conteudo.mes);
+		printf("\t Ano : %d\n", p->conteudo.ano);
+		printf("\t Quantidade de Poco Produtor: %.2f\n", p->conteudo.poco_produtor);
+		printf("\t Quantidade de Poco Injetor: %.2f\n", p->conteudo.poco_injetor);
+		printf("\t Quantidade de Poco Explorador: %.2f\n", p->conteudo.poco_explorador);
+		printf("\t Quantidade de Poco Abandonado: %.2f\n", p->conteudo.poco_abandonado);
+		printf("\t Preco de Venda do Oleo (em dolar): %.2f\n", p->conteudo.venda_oleo);
+		printf("\t Preco de Venda do Gas (em dolar): %.2f\n", p->conteudo.venda_gas);
+		printf("\t Tempo de Producao dos Pocos (até 31 dias): %.2f\n", p->conteudo.tempo_producao);
+		printf("\t Producao Total do Oleo (em bbl): %.2f\n", p->conteudo.producao_oleo);
+		printf("\t Producao Total do Gas (em bbl): %.2f\n", p->conteudo.producao_gas);
+		printf("\t VPL: %.2f\n", p->conteudo.VPL);
 		printf("------------------------------------------------\n");
-		temp = temp->prox;
+		system( "read -n 1 -s -p \"Pressione qualquer tecla para continuar...\"" );
 	}
 
 	// No windows usar system("pause");
 	system( "read -n 1 -s -p \"Pressione qualquer tecla para continuar...\"" );
 }
-
+/*
 void imprime_lista_anual(reservatorio *p) {
 	system("clear");
 
@@ -288,4 +333,4 @@ void imprime_lista_anual(reservatorio *p) {
 	// No windows usar system("pause");
 	system( "read -n 1 -s -p \"Pressione qualquer tecla para continuar...\"" );
 }
-
+ */
