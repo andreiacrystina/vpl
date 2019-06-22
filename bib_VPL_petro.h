@@ -104,7 +104,6 @@ void gravar(registro * ini){
 	printf("Os dados foram salvos!!\n");
 	fclose(file);
 	printf("\n");
-	system ( "read -n 1 -s -p \"Pressione qualquer tecla para continuar...\"" );
 }
 
 void gravar_controle(void) {
@@ -329,7 +328,7 @@ void imprime_lista_mensal(registro *ini){
 			printf("-------------------------------------------------------------------------\n");
 		}
 	} else {
-		printf("Não existem registros de lista mensagem cadastrados.\n");
+		printf("Não existem registros de lista mensal cadastrados.\n");
 	}
 
 	// No windows usar system("pause");
@@ -360,32 +359,72 @@ void remover_dados(registro *ini)
 	}
 }
 
-/*
-void imprime_lista_anual(reservatorio *p) {
+void imprime_lista_anual(registro *ini){
 	system("clear");
 
-  reservatorio *temp = p;
-	while (temp != NULL) {
-		printf("\t Lista Anual\n");
-		printf("\t Nome da Empresa: %s\n", temp->nome_empresa);
-		printf("\t Nome do Campo..: %s\n", temp->nome_campo);
-		printf("\t Mes : %d\n", temp->mes);
-		printf("\t Ano : %d\n", temp->ano);
-		printf("\t Quantidade de Poco Produtor: %.2f\n", temp->poco_produtor);
-		printf("\t Quantidade de Poco Injetor: %.2f\n", temp->poco_injetor);
-		printf("\t Quantidade de Poco Explorador: %.2f\n", temp->poco_explorador);
-		printf("\t Quantidade de Poco Abandonado: %.2f\n", temp->poco_abandonado);
-		printf("\t Preco de Venda do Oleo (em dolar): %.2f\n", temp->venda_oleo);
-		printf("\t Preco de Venda do Gas (em dolar): %.2f\n", temp->venda_gas);
-		printf("\t Tempo de Producao dos Pocos (em dias): %.2f\n", temp->tempo_producao);
-		printf("\t Producao Total do Oleo (em bbl): %.2f\n", temp->producao_oleo);
-		printf("\t Producao Total do Gas (em bbl): %.2f\n", temp->producao_gas);
-		printf("\t VPL: %.2f\n", temp->VPL);
+	int ano_controle = 0;
 
-		temp = temp->prox;
+	reservatorio resultado;
+
+	// Verifica se a lista está vazia.
+	if (ini->prox != NULL) {
+		registro *p;
+		p = ini->prox;
+
+		while ((p != NULL)) {
+			if (ano_controle != p->conteudo.ano) {
+				// Imprime o cabeçalho da lista
+				printf("\n");
+				printf("\t Lista Ano: %d \n", p->conteudo.ano);
+				printf("\t-----------------------------------------\n");
+				printf("\t Nome da Empresa: %s\n", p->conteudo.nome_empresa);
+				printf("\t Nome do Campo..: %s\n", p->conteudo.nome_campo);
+				printf("\t-----------------------------------------\n");
+
+				// Zera os valores para o início do cálculo.
+				resultado.poco_produtor = 0;
+				resultado.poco_injetor = 0;
+				resultado.poco_explorador = 0;
+				resultado.poco_abandonado = 0;
+				resultado.venda_oleo = 0;
+				resultado.venda_gas = 0;
+				resultado.tempo_producao = 0;
+				resultado.producao_oleo = 0;
+				resultado.producao_gas = 0;
+				resultado.VPL = 0;
+
+				ano_controle = p->conteudo.ano;
+			}
+
+			for (NULL; (p != NULL && ano_controle == p->conteudo.ano); p = p->prox) {
+				resultado.poco_produtor += p->conteudo.poco_produtor;
+				resultado.poco_injetor += p->conteudo.poco_injetor;
+				resultado.poco_explorador += p->conteudo.poco_explorador;
+				resultado.poco_abandonado += p->conteudo.poco_abandonado;
+				resultado.venda_oleo += p->conteudo.venda_oleo;
+				resultado.venda_gas += p->conteudo.venda_gas;
+				resultado.tempo_producao += p->conteudo.tempo_producao;
+				resultado.producao_oleo += p->conteudo.producao_oleo;
+				resultado.producao_gas += p->conteudo.producao_gas;
+				resultado.VPL += p->conteudo.VPL;
+			}
+
+			printf("\t Quantidade de Poco Produtor: %.2f\n", resultado.poco_produtor);
+			printf("\t Quantidade de Poco Injetor: %.2f\n", resultado.poco_injetor);
+			printf("\t Quantida de de Poco Explorador: %.2f\n", resultado.poco_explorador);
+			printf("\t Quantidade de Poco Abandonado: %.2f\n", resultado.poco_abandonado);
+			printf("\t Preco de Venda do Oleo (em dolar): %.2f\n", resultado.venda_oleo);
+			printf("\t Preco de Venda do Gas (em dolar): %.2f\n", resultado.venda_gas);
+			printf("\t Tempo de Producao dos Pocos (até 31 dias): %.2f\n", resultado.tempo_producao);
+			printf("\t Producao Total do Oleo (em bbl): %.2f\n", resultado.producao_oleo);
+			printf("\t Producao Total do Gas (em bbl): %.2f\n", resultado.producao_gas);
+			printf("\t VPL: %.2f\n", resultado.VPL);
+			printf("\n-------------------------------------------------------------------------\n");
+		}
+	} else {
+		printf("Não existem registros cadastrados para realizar a análise anual.\n");
 	}
 
 	// No windows usar system("pause");
 	system( "read -n 1 -s -p \"Pressione qualquer tecla para continuar...\"" );
 }
- */

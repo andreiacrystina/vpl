@@ -41,7 +41,7 @@ int main() {
 			imprime_lista_mensal(ini);
 			break;
 		case 3:
-			// imprime_lista_anual(lista_anual);
+			imprime_lista_anual(ini);
 			break;
 		case 4:
 			remover_dados(ini);
