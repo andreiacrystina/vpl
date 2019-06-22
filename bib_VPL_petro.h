@@ -20,7 +20,7 @@ typedef struct reg {
 	struct reg *prox;
 } registro;
 
-registro *busca(char *nome, registro * ini);
+registro *busca(int mes, int ano, registro * ini);
 
 int menu(void)
 {
@@ -32,10 +32,11 @@ int menu(void)
 		printf("\t 1. Cadastrar os Dados da Analise Mensal\n");
 		printf("\t 2. Listar Analises Mensais\n");
 		printf("\t 3. Listar Analises Anuais\n");
-		printf("\t 4. Sair\n\n");
+		printf("\t 4. Remever Dado da Lista Mensal\n");
+		printf("\t 5. Salvar e Sair\n\n");
 		printf("-- Digite sua escolha: ");
 		scanf("%d", &c);
-	} while (c <= 0 || c > 4);
+	} while (c <= 0 || c > 5);
 	getchar();
 	return c;
 }
@@ -59,6 +60,31 @@ void insere(reservatorio x, registro *p)
 	p->prox = nova;
 }
 
+void remova(reservatorio lista_mensal, registro * ini)
+{
+	registro *p, *q;
+	p = ini;
+	q = ini->prox;
+	while ((q != NULL) && (q->conteudo.mes != lista_mensal.mes) && (q->conteudo.ano != lista_mensal.ano)) {
+		p = q;
+		q = q->prox;
+	}
+	if (q != NULL) {
+		p->prox = q->prox;
+		free(q);
+	}
+}
+
+registro *busca(int mes, int ano, registro * ini)
+{
+	registro *p;
+	p = ini->prox;
+	while ((p != NULL) && (p->conteudo.mes != mes) && (p->conteudo.ano != ano)) {
+		p = p->prox;
+	}
+	return p;
+}
+
 void gravar(registro * ini){
 	system("clear");
 
@@ -75,7 +101,7 @@ void gravar(registro * ini){
 		fwrite(&p->conteudo, sizeof(reservatorio), 1, file);
 	}
 
-	printf("Gravado!!\n");
+	printf("Os dados foram salvos!!\n");
 	fclose(file);
 	printf("\n");
 	system ( "read -n 1 -s -p \"Pressione qualquer tecla para continuar...\"" );
@@ -136,17 +162,17 @@ float participacao_especial(reservatorio pr) {
 
 	temp = pr.producao_oleo;
 	temp1 = receita_bruta(pr);
-	/* a participacao especial eh aplicada na producao de oleo do reservatorio, logo quanto maior a producao do reservatorio, maior eh a participacao especial */
+	/* a participacao especial eh aplicada na producao de oleo do reservatorio, logo quanto maior a producao do reservatorio, maior eh a participacao especial. Producao abaixo de 900 milhoes de metros cubicos de oleo equivalente possui isencao  */
 
-	if (temp <= 900) {
+	if (temp <= (900 * 1000000)) {
 		resultado = 0;
-	} else if (temp > 900 && temp <= 1350) {
+	} else if (temp > (900 * 1000000) && temp <= (1350 * 1000000)) {
 		resultado = temp1 * 0.1;
-	} else if (temp > 1350 && temp <= 1800) {
+	} else if (temp > (1350 * 1000000) && temp <= (1800 * 1000000)) {
 		resultado = temp1 * 0.2;
-	} else if (temp > 1800 && temp <= 2550) {
+	} else if (temp > (1800 * 1000000) && temp <= (2550 * 1000000)) {
 		resultado = temp1 * 0.3;
-	} else if (temp > 2550 && temp <= 2700) {
+	} else if (temp > (2550 * 1000000) && temp <= (2700 * 1000000)) {
 		resultado = temp1 * 0.35;
 	} else {
 		resultado = temp1 * 0.4;
@@ -281,30 +307,59 @@ reservatorio *cadastra_dados_mensal(registro *ini) {
 
 void imprime_lista_mensal(registro *ini){
 	system("clear");
-	registro *p;
+	if (ini->prox != NULL) {
+		registro *p;
 
-	for (p = ini->prox; p != NULL; p = p->prox){
-		printf("\t Lista Mensal\n");
-		printf("\t Nome da Empresa: %s\n", p->conteudo.nome_empresa);
-		printf("\t Nome do Campo..: %s\n", p->conteudo.nome_campo);
-		printf("\t Mes : %d\n", p->conteudo.mes);
-		printf("\t Ano : %d\n", p->conteudo.ano);
-		printf("\t Quantidade de Poco Produtor: %.2f\n", p->conteudo.poco_produtor);
-		printf("\t Quantidade de Poco Injetor: %.2f\n", p->conteudo.poco_injetor);
-		printf("\t Quantidade de Poco Explorador: %.2f\n", p->conteudo.poco_explorador);
-		printf("\t Quantidade de Poco Abandonado: %.2f\n", p->conteudo.poco_abandonado);
-		printf("\t Preco de Venda do Oleo (em dolar): %.2f\n", p->conteudo.venda_oleo);
-		printf("\t Preco de Venda do Gas (em dolar): %.2f\n", p->conteudo.venda_gas);
-		printf("\t Tempo de Producao dos Pocos (até 31 dias): %.2f\n", p->conteudo.tempo_producao);
-		printf("\t Producao Total do Oleo (em bbl): %.2f\n", p->conteudo.producao_oleo);
-		printf("\t Producao Total do Gas (em bbl): %.2f\n", p->conteudo.producao_gas);
-		printf("\t VPL: %.2f\n", p->conteudo.VPL);
-		printf("------------------------------------------------\n");
+		for (p = ini->prox; p != NULL; p = p->prox){
+			printf("\t Lista Mensal\n");
+			printf("\t Nome da Empresa: %s\n", p->conteudo.nome_empresa);
+			printf("\t Nome do Campo..: %s\n", p->conteudo.nome_campo);
+			printf("\t Mes : %d\n", p->conteudo.mes);
+			printf("\t Ano : %d\n", p->conteudo.ano);
+			printf("\t Quantidade de Poco Produtor: %.2f\n", p->conteudo.poco_produtor);
+			printf("\t Quantidade de Poco Injetor: %.2f\n", p->conteudo.poco_injetor);
+			printf("\t Quantidade de Poco Explorador: %.2f\n", p->conteudo.poco_explorador);
+			printf("\t Quantidade de Poco Abandonado: %.2f\n", p->conteudo.poco_abandonado);
+			printf("\t Preco de Venda do Oleo (em dolar): %.2f\n", p->conteudo.venda_oleo);
+			printf("\t Preco de Venda do Gas (em dolar): %.2f\n", p->conteudo.venda_gas);
+			printf("\t Tempo de Producao dos Pocos (até 31 dias): %.2f\n", p->conteudo.tempo_producao);
+			printf("\t Producao Total do Oleo (em bbl): %.2f\n", p->conteudo.producao_oleo);
+			printf("\t Producao Total do Gas (em bbl): %.2f\n", p->conteudo.producao_gas);
+			printf("\t VPL: %.2f\n", p->conteudo.VPL);
+			printf("-------------------------------------------------------------------------\n");
+		}
+	} else {
+		printf("Não existem registros de lista mensagem cadastrados.\n");
 	}
 
 	// No windows usar system("pause");
 	system( "read -n 1 -s -p \"Pressione qualquer tecla para continuar...\"" );
 }
+
+void remover_dados(registro *ini)
+{
+	system("clear");
+	int mes, ano;
+	printf("Digite o mes que deseja remover: ");
+	scanf("%d", &mes);
+	printf("Digite o ano que deseja remover: ");
+	scanf("%d", &ano);
+
+	// se a posição  é valida, e aquele registro existe
+	registro *temp;
+	temp = busca(mes, ano, ini);
+
+	if (temp != NULL){
+		remova(temp->conteudo, ini);
+		MAX--;
+		printf("Registro do Mes: %d e Ano: %d foi removido com sucesso.\n", temp->conteudo.mes, temp->conteudo.ano);
+		system ( "read -n 1 -s -p \"Pressione qualquer tecla para continuar...\"" );
+	}else{
+		printf("Registro nao encontrado, verifique os dados da busca!\n");
+		system ( "read -n 1 -s -p \"Pressione qualquer tecla para continuar...\"" );
+	}
+}
+
 /*
 void imprime_lista_anual(reservatorio *p) {
 	system("clear");

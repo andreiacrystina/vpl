@@ -30,8 +30,6 @@ int main() {
 	}
 	fclose(file);
 
-	printf("MAX: %d", MAX);
-
 	for (;;) {
 		escolha = menu();
 
@@ -46,6 +44,9 @@ int main() {
 			// imprime_lista_anual(lista_anual);
 			break;
 		case 4:
+			remover_dados(ini);
+			break;
+		case 5:
 			gravar_controle();
 			gravar(ini);
 			exit(0);
