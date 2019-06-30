@@ -1,3 +1,5 @@
+//Andréia Jardim, Caroline Garcia, Felipe Machado, Marcelo Lopes, Yan Alegre
+
 typedef struct {
 	char nome_empresa[100];
 	char nome_campo[100];
@@ -28,11 +30,11 @@ int menu(void)
 	system("clear");
 	int c = 0;
 	do {
-		printf("Este eh um programa que calcula o VPL de projetos petroliferos!\n\n -- MENU:\n");
+		printf("Este eh um programa que calcula o VPL de projetos petroliferos!\n\n -- MENU:\n\n");
 		printf("\t 1. Cadastrar os Dados da Analise Mensal\n");
 		printf("\t 2. Listar Analises Mensais\n");
 		printf("\t 3. Listar Analises Anuais\n");
-		printf("\t 4. Remever Dado da Lista Mensal\n");
+		printf("\t 4. Remover Dado da Lista Mensal\n");
 		printf("\t 5. Salvar e Sair\n\n");
 		printf("-- Digite sua escolha: ");
 		scanf("%d", &c);
@@ -82,7 +84,14 @@ registro *busca(int mes, int ano, registro * ini)
 	while ((p != NULL) && (p->conteudo.mes != mes) && (p->conteudo.ano != ano)) {
 		p = p->prox;
 	}
-	return p;
+
+	// Apenas retorna o registro p se o mesmo não for nulo e o mes e ano forem iguais ao informado.
+	if ((p != NULL) && (p->conteudo.mes == mes) && (p->conteudo.ano == ano))
+	{
+		return p;
+	} else {
+		return NULL;
+	}
 }
 
 void gravar(registro * ini){
@@ -140,18 +149,17 @@ void ler_string(char palavra[100], int tamanho) {
 
 float receita_bruta(reservatorio pr) {
   float preco_oleo, preco_gas, custo_producao_oleo, custo_producao_gas, resultado;
-  //fator de qualidade do oleo e gas
+  //fator de conversão do oleo e gas
   float fbo = 1.95;
-  float fbg = 0.0468;
 
   preco_oleo = pr.venda_oleo * fbo;
-  preco_gas = pr.venda_gas * fbg;
+  preco_gas = pr.venda_gas;
 
-  //calculo dos custos operacionais em milhoes de dolares
-  custo_producao_oleo = ((7.08 * pr.producao_oleo) / 1000000);
-  custo_producao_gas = ((0.0072 * pr.producao_oleo) / 1000000);
+  //calculo do valor de venda do barril de petroleoem milhoes de dolares
+  custo_producao_oleo = (7.08 * pr.producao_oleo);
+  custo_producao_gas = (0.0072 * pr.producao_gas);
 
-  resultado = (((preco_oleo * custo_producao_oleo) + (preco_gas * custo_producao_gas)) / 1000000);
+  resultado = (((preco_oleo * custo_producao_oleo) + (preco_gas * custo_producao_gas))/1000000);
 
 	return (resultado);
 }
@@ -161,7 +169,7 @@ float participacao_especial(reservatorio pr) {
 
 	temp = pr.producao_oleo;
 	temp1 = receita_bruta(pr);
-	/* a participacao especial eh aplicada na producao de oleo do reservatorio, logo quanto maior a producao do reservatorio, maior eh a participacao especial. Producao abaixo de 900 milhoes de metros cubicos de oleo equivalente possui isencao  */
+	/* a participacao especial eh aplicada na producao de oleo do reservatorio, logo quanto maior a producao do reservatorio, maior eh a participacao especial. Producao abaixo de 900 mil metros cubicos de oleo equivalente possui isencao  */
 
 	if (temp <= (900 * 1000000)) {
 		resultado = 0;
@@ -201,8 +209,9 @@ float royalties(reservatorio pr) {
 }
 
 float receita_liquida(reservatorio pr) {
-	float aluguel, exploracao, perfuracao, completacao, abandono, temp1;
+	float exploracao, perfuracao, completacao, abandono, temp1;
 
+	//Investimentos contabilizados como despesas.
 	exploracao = (44 * pr.poco_explorador);
 	perfuracao = (14 * pr.poco_produtor) + (14 * pr.poco_injetor);
 	completacao = (13 * pr.poco_produtor) + (13 * pr.poco_injetor);
@@ -214,6 +223,7 @@ float receita_liquida(reservatorio pr) {
 }
 
 float lucro_tributario(reservatorio pr) {
+	//parcela de impostos que são pagos para a uniao.
 	float temp1, temp2, temp3, temp4;
 
 	temp1 = receita_liquida(pr);
@@ -266,7 +276,7 @@ reservatorio *cadastra_dados_mensal(registro *ini) {
 	float calculo_vpl = 0;
 
 	// Recebe os dados do usuário.
-	printf("Cadastro de Dados para Analise Mensal do VPL\n");
+	printf("Cadastro de Dados para Analise Mensal do VPL\n\n");
   printf("\t Informe o nome da empresa: ");
 	ler_string(temp.nome_empresa, 100);
   printf("\t Informe o nome do campo: ");
@@ -310,7 +320,7 @@ void imprime_lista_mensal(registro *ini){
 		registro *p;
 
 		for (p = ini->prox; p != NULL; p = p->prox){
-			printf("\t Lista Mensal\n");
+			printf("\t Lista Mensal\n\n");
 			printf("\t Nome da Empresa: %s\n", p->conteudo.nome_empresa);
 			printf("\t Nome do Campo..: %s\n", p->conteudo.nome_campo);
 			printf("\t Mes : %d\n", p->conteudo.mes);
@@ -325,7 +335,7 @@ void imprime_lista_mensal(registro *ini){
 			printf("\t Producao Total do Oleo (em bbl): %.2f\n", p->conteudo.producao_oleo);
 			printf("\t Producao Total do Gas (em bbl): %.2f\n", p->conteudo.producao_gas);
 			printf("\t VPL: %.2f\n", p->conteudo.VPL);
-			printf("-------------------------------------------------------------------------\n");
+			printf("\n-------------------------------------------------------------------------\n\n");
 		}
 	} else {
 		printf("Não existem registros de lista mensal cadastrados.\n");
@@ -358,6 +368,7 @@ void remover_dados(registro *ini)
 		system ( "read -n 1 -s -p \"Pressione qualquer tecla para continuar...\"" );
 	}
 }
+
 
 void imprime_lista_anual(registro *ini){
 	system("clear");
@@ -401,8 +412,6 @@ void imprime_lista_anual(registro *ini){
 				resultado.poco_injetor += p->conteudo.poco_injetor;
 				resultado.poco_explorador += p->conteudo.poco_explorador;
 				resultado.poco_abandonado += p->conteudo.poco_abandonado;
-				resultado.venda_oleo += p->conteudo.venda_oleo;
-				resultado.venda_gas += p->conteudo.venda_gas;
 				resultado.tempo_producao += p->conteudo.tempo_producao;
 				resultado.producao_oleo += p->conteudo.producao_oleo;
 				resultado.producao_gas += p->conteudo.producao_gas;
@@ -413,12 +422,10 @@ void imprime_lista_anual(registro *ini){
 			printf("\t Quantidade de Poco Injetor: %.2f\n", resultado.poco_injetor);
 			printf("\t Quantida de de Poco Explorador: %.2f\n", resultado.poco_explorador);
 			printf("\t Quantidade de Poco Abandonado: %.2f\n", resultado.poco_abandonado);
-			printf("\t Preco de Venda do Oleo (em dolar): %.2f\n", resultado.venda_oleo);
-			printf("\t Preco de Venda do Gas (em dolar): %.2f\n", resultado.venda_gas);
-			printf("\t Tempo de Producao dos Pocos (até 31 dias): %.2f\n", resultado.tempo_producao);
+			printf("\t Tempo de Producao dos Pocos (em dias): %.2f\n", resultado.tempo_producao);
 			printf("\t Producao Total do Oleo (em bbl): %.2f\n", resultado.producao_oleo);
 			printf("\t Producao Total do Gas (em bbl): %.2f\n", resultado.producao_gas);
-			printf("\t VPL: %.2f\n", resultado.VPL);
+			printf("\t VPL (em dolar): %.2f\n", resultado.VPL);
 			printf("\n-------------------------------------------------------------------------\n");
 		}
 	} else {

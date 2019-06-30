@@ -4,6 +4,7 @@ int MAX = 0;
 
 #include "bib_VPL_petro.h"
 
+ //Andréia Jardim, Caroline Garcia, Felipe Machado, Marcelo Lopes, Yan Alegre
 
 int main() {
 	int escolha;
